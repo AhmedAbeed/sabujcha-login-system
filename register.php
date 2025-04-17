@@ -1,36 +1,36 @@
 <?php
-// اتصال بقاعدة البيانات
+// Connect to the database
 $host = "localhost";
 $user = "root";
-$password = ""; // لو عامل باسوورد للـ root اكتبه هنا
+$password = ""; // If you have set a password for root, write it here
 $dbname = "sabujcha_db";
 
-// إنشاء الاتصال
+// Create the connection
 $conn = new mysqli($host, $user, $password, $dbname);
 
-// فحص الاتصال
+// Check the connection
 if ($conn->connect_error) {
-    die("فشل الاتصال بقاعدة البيانات: " . $conn->connect_error);
+    die("Database connection failed: " . $conn->connect_error);
 }
 
-// لو الفورم اتبعت
+// If the form is submitted
 if (isset($_POST['username']) && isset($_POST['email']) && isset($_POST['password'])) {
     
-    // استلام البيانات من الفورم
+    // Receive data from the form
     $username = htmlspecialchars($_POST['username']);
     $email = htmlspecialchars($_POST['email']);
-    $password = password_hash($_POST['password'], PASSWORD_DEFAULT); // تشفير الباسورد
+    $password = password_hash($_POST['password'], PASSWORD_DEFAULT); // Encrypt the password
 
-    // تجهيز وإنشاء الاستعلام
+    // Prepare and create the query
     $stmt = $conn->prepare("INSERT INTO users (username, email, password) VALUES (?, ?, ?)");
     $stmt->bind_param("sss", $username, $email, $password);
 
     if ($stmt->execute()) {
-        echo "✅ تم إنشاء الحساب بنجاح!";
-        // تقدر تعمل redirect هنا مثلاً
+        echo " Account created successfully!";
+        // You can do a redirect here, for example
         // header("Location: login-register.php");
     } else {
-        echo "❌ حصل خطأ: " . $stmt->error;
+        echo " An error occurred: " . $stmt->error;
     }
 
     $stmt->close();
