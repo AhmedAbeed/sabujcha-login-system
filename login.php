@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-// إعداد الاتصال
+// Connection setup
 $host = "localhost";
 $user = "root";
 $password = "";
@@ -9,40 +9,40 @@ $dbname = "sabujcha_db";
 
 $conn = new mysqli($host, $user, $password, $dbname);
 
-// فحص الاتصال
+// Check the connection
 if ($conn->connect_error) {
-    die("فشل الاتصال: " . $conn->connect_error);
+    die("Connection failed: " . $conn->connect_error);
 }
 
-// لو المستخدم دخل الإيميل والباسورد
+// If the user submitted email and password
 if (isset($_POST['email']) && isset($_POST['password'])) {
     
     $email = htmlspecialchars($_POST['email']);
     $password = $_POST['password'];
 
-    // البحث عن المستخدم
+    // Search for the user
     $stmt = $conn->prepare("SELECT id, username, password FROM users WHERE email = ?");
     $stmt->bind_param("s", $email);
     $stmt->execute();
     $stmt->store_result();
 
-    // لو فيه نتيجة
+    // If there is a result
     if ($stmt->num_rows > 0) {
         $stmt->bind_result($id, $username, $hashed_password);
         $stmt->fetch();
 
-        // نتحقق من الباسورد
+        // Verify the password
         if (password_verify($password, $hashed_password)) {
             $_SESSION['user_id'] = $id;
             $_SESSION['username'] = $username;
 
-            echo "✅ تم تسجيل الدخول بنجاح، أهلاً يا " . $username;
-            // header("Location: index.php"); ← تقدر تعمله redirect بعدين
+            echo "✅ Logged in successfully, welcome " . $username;
+            // header("Location: index.php"); ← You can redirect later
         } else {
-            echo "❌ كلمة السر غير صحيحة.";
+            echo "❌ Incorrect password.";
         }
     } else {
-        echo "❌ لا يوجد مستخدم بهذا الإيميل.";
+        echo "❌ No user found with this email.";
     }
 
     $stmt->close();
